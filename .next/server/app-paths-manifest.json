@@ -1,10 +1,8 @@
 {
+  "/login/page": "app/login/page.js",
+  "/signup/page": "app/signup/page.js",
   "/browse/page": "app/browse/page.js",
   "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/profile/page": "app/dashboard/profile/page.js",
-  "/dashboard/my-skills/page": "app/dashboard/my-skills/page.js",
-  "/dashboard/messages/page": "app/dashboard/messages/page.js",
-  "/dashboard/wanted-skills/page": "app/dashboard/wanted-skills/page.js",
-  "/dashboard/matches/page": "app/dashboard/matches/page.js"
+  "/dashboard/messages/page": "app/dashboard/messages/page.js"
 }
