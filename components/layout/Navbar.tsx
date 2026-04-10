@@ -17,9 +17,9 @@ export default function Navbar() {
           <Image 
             src="/logo.png" 
             alt="SkillSwap Logo" 
-            width={150} 
-            height={40} 
-            className="w-auto h-8 md:h-10 transition-transform group-hover:scale-105" 
+            width={200} 
+            height={60} 
+            className="w-auto h-12 md:h-16 transition-transform group-hover:scale-105" 
             priority
           />
         </Link>
