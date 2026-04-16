@@ -3,7 +3,7 @@
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AvatarUpload from "@/components/forms/AvatarUpload";
 
 export default function ProfilePage() {
   const { user } = useStore();
@@ -20,16 +20,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-8">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <Avatar className="h-24 w-24 shadow-md ring-4 ring-slate-50">
-            <AvatarImage src={user.avatar} />
-            <AvatarFallback className="text-2xl bg-primary/10 text-primary">{user.name[0]}</AvatarFallback>
-          </Avatar>
-          <div className="space-y-2 text-center sm:text-left">
-            <Button variant="outline" className="rounded-full">Change Avatar</Button>
-            <p className="text-xs text-slate-500">JPG, GIF or PNG. 1MB max.</p>
-          </div>
-        </div>
+        <AvatarUpload />
 
         <div className="space-y-6">
           <div className="grid gap-2">

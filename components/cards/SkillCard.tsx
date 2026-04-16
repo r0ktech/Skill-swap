@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useStore } from "@/lib/store";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +19,26 @@ interface SkillCardProps {
 }
 
 export default function SkillCard({ title, description, category, level, user }: SkillCardProps) {
+  const { requestSkillSwap, user: currentUser } = useStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleRequestSwap = () => {
+    if (!currentUser || currentUser.name === user.name) {
+      alert("You cannot request a swap with yourself!");
+      return;
+    }
+
+    setIsLoading(true);
+    // Simulate async operation
+    setTimeout(() => {
+      requestSkillSwap(title, user.name, user.avatar);
+      setIsLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }, 300);
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className="p-4 pb-2">
@@ -37,8 +61,13 @@ export default function SkillCard({ title, description, category, level, user }:
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full rounded-full" variant="outline">
-          Request Swap
+        <Button 
+          className="w-full rounded-full" 
+          variant={showSuccess ? "default" : "outline"}
+          onClick={handleRequestSwap}
+          disabled={isLoading}
+        >
+          {isLoading ? "Sending..." : showSuccess ? "✓ Request Sent!" : "Request Swap"}
         </Button>
       </CardFooter>
     </Card>

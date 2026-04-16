@@ -732,6 +732,9 @@ video {
 .h-11 {
   height: 2.75rem;
 }
+.h-12 {
+  height: 3rem;
+}
 .h-16 {
   height: 4rem;
 }
@@ -761,9 +764,6 @@ video {
 }
 .h-full {
   height: 100%;
-}
-.h-12 {
-  height: 3rem;
 }
 .min-h-\[120px\] {
   min-height: 120px;
@@ -1795,10 +1795,6 @@ video {
 
   .md\:hidden {
     display: none;
-  }
-
-  .md\:h-10 {
-    height: 2.5rem;
   }
 
   .md\:h-16 {
