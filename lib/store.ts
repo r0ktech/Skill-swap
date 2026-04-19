@@ -5,7 +5,7 @@ interface Match {
   id: string;
   matchedUser: {
     name: string;
-    avatar?: string;
+    avatar: string;
   };
   theirSkill: string;
   yourSkill: string;
@@ -59,7 +59,7 @@ export const useStore = create<AppState>((set) => ({
         id: `m-${Date.now()}`,
         matchedUser: {
           name: skillOwnerName,
-          avatar: skillOwnerAvatar
+          avatar: skillOwnerAvatar ?? ""
         },
         theirSkill: skillTitle,
         yourSkill: "Your Skills",

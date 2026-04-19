@@ -55,6 +55,50 @@ export const mockSkills = [
       name: "David Smith",
       avatar: "https://i.pravatar.cc/150?u=a042581f4e29026701d"
     }
+  },
+  {
+    id: "s5",
+    title: "French Conversation Practice",
+    description: "Practice everyday French with a native speaker and improve your speaking confidence.",
+    category: "Language",
+    level: "Intermediate",
+    user: {
+      name: "Emma Dubois",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d"
+    }
+  },
+  {
+    id: "s6",
+    title: "Guitar for Beginners",
+    description: "Learn chords, strumming patterns, and simple songs to start playing guitar quickly.",
+    category: "Music",
+    level: "Beginner",
+    user: {
+      name: "Noah Patel",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706d"
+    }
+  },
+  {
+    id: "s7",
+    title: "Productivity with Notion",
+    description: "Create workspaces, databases, and automation in Notion for personal and team productivity.",
+    category: "Business",
+    level: "Intermediate",
+    user: {
+      name: "Ana Silva",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026707d"
+    }
+  },
+  {
+    id: "s8",
+    title: "Social Media Copywriting",
+    description: "Write engaging posts and ads tailored for Instagram, LinkedIn, and TikTok audiences.",
+    category: "Marketing",
+    level: "Intermediate",
+    user: {
+      name: "Lena Johnson",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026708d"
+    }
   }
 ];
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { categories as skillCategories } from "@/lib/mock-data";
 import SkillCard from "@/components/cards/SkillCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 export default function BrowsePage() {
   const { skills } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
-  const categories = ["All", "Development", "Language", "Design", "Marketing"];
+  const categories = ["All", ...skillCategories];
 
   const filteredSkills = skills.filter((skill) =>
     skill.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
