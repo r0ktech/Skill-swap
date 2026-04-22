@@ -22,6 +22,9 @@ interface AppState {
   sendMessage: (text: string, senderId: string) => void;
   updateAvatar: (avatarUrl: string) => void;
   requestSkillSwap: (skillTitle: string, skillOwnerName: string, skillOwnerAvatar?: string) => void;
+  addSkill: (skill: Omit<typeof mockSkills[0], 'id' | 'user'>) => void;
+  editSkill: (skillId: string, updates: Partial<Omit<typeof mockSkills[0], 'id' | 'user'>>) => void;
+  deleteSkill: (skillId: string) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -80,5 +83,29 @@ export const useStore = create<AppState>((set) => ({
       matches: updatedMatches,
       messages: [...state.messages, initialMessage]
     };
-  })
+  }),
+  addSkill: (skillData) => set((state) => {
+    if (!state.user) return { ...state };
+
+    const newSkill = {
+      id: `s-${Date.now()}`,
+      ...skillData,
+      user: {
+        name: state.user.name,
+        avatar: state.user.avatar
+      }
+    };
+
+    return {
+      skills: [...state.skills, newSkill]
+    };
+  }),
+  editSkill: (skillId, updates) => set((state) => ({
+    skills: state.skills.map(skill =>
+      skill.id === skillId ? { ...skill, ...updates } : skill
+    )
+  })),
+  deleteSkill: (skillId) => set((state) => ({
+    skills: state.skills.filter(skill => skill.id !== skillId)
+  }))
 }));

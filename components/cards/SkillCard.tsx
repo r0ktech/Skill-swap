@@ -16,9 +16,13 @@ interface SkillCardProps {
     name: string;
     avatar?: string;
   };
+  id?: string;
+  isOwnSkill?: boolean;
+  onEdit?: (skill: { id: string; title: string; description: string; category: string; level: string }) => void;
+  onDelete?: (skillId: string) => void;
 }
 
-export default function SkillCard({ title, description, category, level, user }: SkillCardProps) {
+export default function SkillCard({ title, description, category, level, user, id, isOwnSkill, onEdit, onDelete }: SkillCardProps) {
   const { requestSkillSwap, user: currentUser } = useStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -61,14 +65,33 @@ export default function SkillCard({ title, description, category, level, user }:
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button 
-          className="w-full rounded-full" 
-          variant={showSuccess ? "default" : "outline"}
-          onClick={handleRequestSwap}
-          disabled={isLoading}
-        >
-          {isLoading ? "Sending..." : showSuccess ? "✓ Request Sent!" : "Request Swap"}
-        </Button>
+        {isOwnSkill ? (
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-full"
+              onClick={() => onEdit?.({ id: id!, title, description, category, level })}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={() => onDelete?.(id!)}
+            >
+              Delete
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            className="w-full rounded-full" 
+            variant={showSuccess ? "default" : "outline"}
+            onClick={handleRequestSwap}
+            disabled={isLoading}
+          >
+            {isLoading ? "Sending..." : showSuccess ? "✓ Request Sent!" : "Request Swap"}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
