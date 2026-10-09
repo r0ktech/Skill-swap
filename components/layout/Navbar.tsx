@@ -1,85 +1,113 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useHydrated, useMe } from "@/lib/hooks";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/common/Logo";
+import { NotificationsMenu } from "./NotificationsMenu";
+import { UserMenu } from "./UserMenu";
 
-export default function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const LINKS = [
+  { href: "/browse", label: "Browse skills" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#categories", label: "Categories" },
+];
+
+export function Navbar() {
   const pathname = usePathname();
+  const me = useMe();
+  const hydrated = useHydrated();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center space-x-2 group relative z-50">
-          <Image 
-            src="/logo.png" 
-            alt="SkillSwap Logo" 
-            width={200} 
-            height={60} 
-            className="w-auto h-12 md:h-16 transition-transform group-hover:scale-105" 
-            priority
-          />
-        </Link>
-        <nav className="hidden md:flex gap-6">
-          <Link href="/browse" className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/browse' ? 'text-primary font-bold' : 'text-slate-600'}`}>
-            Browse Skills
-          </Link>
-          <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/dashboard' ? 'text-primary font-bold' : 'text-slate-600'}`}>
-            Dashboard
-          </Link>
-          <Link href="/dashboard/messages" className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/dashboard/messages' ? 'text-primary font-bold' : 'text-slate-600'}`}>
-            Messages
-          </Link>
-        </nav>
-        <div className="hidden md:flex items-center gap-4 relative z-50">
-          <Button variant="ghost" asChild className="hidden sm:inline-flex text-slate-600">
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild className="rounded-full">
-            <Link href="/signup">Sign up</Link>
-          </Button>
-        </div>
+    <header
+      className={cn(
+        "sticky top-0 z-40 w-full transition-[background-color,border-color,backdrop-filter] duration-300",
+        scrolled || open ? "border-b bg-background/85 backdrop-blur-lg" : "border-b border-transparent"
+      )}
+    >
+      <div className="container flex h-16 items-center justify-between gap-6">
+        <Logo />
 
-        {/* Mobile Toggle & Sign Up */}
-        <div className="flex md:hidden items-center gap-3 relative z-50">
-          <Button asChild className="rounded-full h-8 px-4 text-xs">
-            <Link href="/signup">Sign up</Link>
-          </Button>
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-slate-600 focus:outline-none p-1 bg-slate-100 rounded-md"
-            aria-label="Toggle Navigation"
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={cn(
+                "rounded-full px-3.5 py-2 text-sm font-medium transition-colors hover:bg-secondary",
+                pathname === l.href ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          {!hydrated ? (
+            <div className="h-9 w-28" />
+          ) : me ? (
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <NotificationsMenu />
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/signup">Get started</Link>
+              </Button>
+            </>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-            )}
-          </button>
+            {open ? <X /> : <Menu />}
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl px-4 pt-2 pb-6 flex flex-col space-y-4 z-40 animate-in slide-in-from-top-2">
-          <Link href="/browse" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium px-2 py-2 rounded-md transition-colors ${pathname === '/browse' ? 'text-primary bg-primary/5' : 'text-slate-800 hover:text-primary hover:bg-slate-50'}`}>
-            Browse Skills
-          </Link>
-          <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium px-2 py-2 rounded-md transition-colors ${pathname === '/dashboard' ? 'text-primary bg-primary/5' : 'text-slate-800 hover:text-primary hover:bg-slate-50'}`}>
-            Dashboard
-          </Link>
-          <Link href="/dashboard/messages" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium px-2 py-2 rounded-md transition-colors ${pathname === '/dashboard/messages' ? 'text-primary bg-primary/5' : 'text-slate-800 hover:text-primary hover:bg-slate-50'}`}>
-            Messages
-          </Link>
-          <div className="border-t border-slate-100 pt-4">
-             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium text-slate-600 hover:text-primary px-2 py-2 block w-full">
-               Log in
-             </Link>
-          </div>
-        </div>
+      {open && (
+        <nav className="container grid gap-1 pb-5 pt-1 animate-in fade-in-0 slide-in-from-top-2 md:hidden" aria-label="Mobile">
+          {LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="rounded-lg px-3 py-3 text-base font-medium hover:bg-secondary">
+              {l.label}
+            </Link>
+          ))}
+          {me ? (
+            <Link href="/dashboard" className="rounded-lg px-3 py-3 text-base font-medium hover:bg-secondary">
+              Dashboard
+            </Link>
+          ) : (
+            <Link href="/login" className="rounded-lg px-3 py-3 text-base font-medium hover:bg-secondary">
+              Log in
+            </Link>
+          )}
+        </nav>
       )}
     </header>
   );
