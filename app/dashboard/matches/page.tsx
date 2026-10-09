@@ -1,56 +1,133 @@
 "use client";
 
-import { useStore } from "@/lib/store";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { Inbox, Send, Sparkles, Archive, Handshake } from "lucide-react";
+import { useConversations, useMatches } from "@/lib/hooks";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/common/EmptyState";
+import { PageHeader } from "@/components/common/PageHeader";
+import { SuggestionCard, SwapRow } from "@/components/swap/MatchCards";
 
-export default function MatchesPage() {
-  const { matches } = useStore();
+const TABS = ["suggested", "incoming", "sent", "active", "past"] as const;
+type Tab = (typeof TABS)[number];
+
+function MatchesView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const tab = (TABS.includes(params.get("tab") as Tab) ? params.get("tab") : "suggested") as Tab;
+
+  const matches = useMatches();
+  const conversations = useConversations();
+  const incoming = conversations.filter((c) => c.direction === "incoming" && c.swap.status === "pending");
+  const sent = conversations.filter((c) => c.direction === "outgoing" && c.swap.status === "pending");
+  const active = conversations.filter((c) => c.swap.status === "accepted");
+  const past = conversations.filter((c) => c.swap.status === "declined" || c.swap.status === "completed");
+
+  const Count = ({ n }: { n: number }) =>
+    n ? <span className="rounded-full bg-foreground/10 px-1.5 text-[11px] leading-[18px]">{n}</span> : null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">My Matches</h1>
-        <p className="text-slate-500 mt-2">Review users who want to exchange skills with you.</p>
-      </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <PageHeader title="Matches" description="People whose skills complement yours, and the swaps you've started." />
 
-      <div className="space-y-4">
-        {matches.map(match => (
-          <div key={match.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 bg-white rounded-3xl border border-slate-100 shadow-sm gap-4 transition-all hover:shadow-md">
-            <div className="flex gap-4 items-center w-full md:w-auto">
-              <Avatar className="h-16 w-16 shadow-sm border border-slate-100">
-                <AvatarImage src={match.matchedUser.avatar} />
-                <AvatarFallback className="text-xl bg-primary/10 text-primary">{match.matchedUser.name[0]}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">{match.matchedUser.name}</h3>
-                <div className="flex flex-col md:flex-row gap-1 md:gap-4 text-sm text-slate-500 mt-1">
-                  <p>Wants: <span className="font-medium text-primary">{match.yourSkill}</span></p>
-                  <p className="hidden md:block text-slate-300">•</p>
-                  <p>Offers: <span className="font-medium text-slate-900">{match.theirSkill}</span></p>
-                </div>
+      <Tabs value={tab} onValueChange={(v) => router.replace(`${pathname}?tab=${v}`, { scroll: false })}>
+        <TabsList>
+          <TabsTrigger value="suggested">
+            Suggested <Count n={matches.length} />
+          </TabsTrigger>
+          <TabsTrigger value="incoming">
+            Requests <Count n={incoming.length} />
+          </TabsTrigger>
+          <TabsTrigger value="sent">
+            Sent <Count n={sent.length} />
+          </TabsTrigger>
+          <TabsTrigger value="active">
+            Active <Count n={active.length} />
+          </TabsTrigger>
+          <TabsTrigger value="past">Past</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="suggested">
+          {matches.length ? (
+            <>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Ranked by how well you fit each other. <span className="font-medium text-learn-ink">Mutual matches</span> teach
+                something you want <em>and</em> want something you teach.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {matches.map((m) => (
+                  <SuggestionCard key={m.user.id} match={m} />
+                ))}
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-0 border-slate-100 justify-start md:justify-end">
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100/80 mb-2 md:mb-0 mr-auto md:mr-2 w-fit">{match.status}</Badge>
-              <Button size="icon" variant="outline" className="rounded-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 hover:text-green-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </Button>
-              <Button size="icon" variant="outline" className="rounded-full text-red-600 border-red-200 bg-red-50 hover:bg-red-100 hover:text-red-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </Button>
-              <Button asChild className="rounded-full shadow-md bg-slate-900 text-white">
-                <Link href="/dashboard/messages">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg>
-                  Chat
-                </Link>
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+            </>
+          ) : (
+            <EmptyState
+              icon={Sparkles}
+              title="No suggestions yet"
+              description="Add a few skills to your learning list and we'll find people who teach them."
+              action={
+                <Button asChild>
+                  <Link href="/dashboard/wanted-skills">Update learning list</Link>
+                </Button>
+              }
+            />
+          )}
+        </TabsContent>
+
+        <List value="incoming" items={incoming} icon={Inbox} empty="No new requests" hint="When someone wants to learn from you, it shows up here." />
+        <List value="sent" items={sent} icon={Send} empty="No pending requests" hint="Requests you send are listed here until they're answered." />
+        <List value="active" items={active} icon={Handshake} empty="No active swaps" hint="Accepted swaps live here. Chat and schedule sessions from each one." />
+        <List value="past" items={past} icon={Archive} empty="Nothing here yet" hint="Declined and finished swaps are archived here." />
+      </Tabs>
     </div>
+  );
+}
+
+function List({
+  value,
+  items,
+  icon,
+  empty,
+  hint,
+}: {
+  value: Tab;
+  items: ReturnType<typeof useConversations>;
+  icon: React.ComponentProps<typeof EmptyState>["icon"];
+  empty: string;
+  hint: string;
+}) {
+  return (
+    <TabsContent value={value}>
+      {items.length ? (
+        <div className="grid gap-3">
+          {items.map((c) => (
+            <SwapRow key={c.swap.id} conversation={c} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={icon}
+          title={empty}
+          description={hint}
+          action={
+            <Button asChild variant="outline">
+              <Link href="/browse">Browse skills</Link>
+            </Button>
+          }
+        />
+      )}
+    </TabsContent>
+  );
+}
+
+export default function MatchesPage() {
+  return (
+    <Suspense>
+      <MatchesView />
+    </Suspense>
   );
 }
